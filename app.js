@@ -1,14 +1,48 @@
-import { auth, db, storage, toggleTheme } from './firebase-init.js';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+// Firebase SDK imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
+  authDomain: "first-aid-log-hours.firebaseapp.com",
+  projectId: "first-aid-log-hours",
+  storageBucket: "first-aid-log-hours.appspot.com",
+  messagingSenderId: "413029874974",
+  appId: "1:413029874974:web:431eb394a78a666442dd0f",
+  measurementId: "G-VD5BEXPTFD"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Theme toggle
+export function toggleTheme() {
+  const root = document.documentElement;
+  if (root.classList.contains('dark')) {
+    root.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  } else {
+    root.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }
+}
+if (localStorage.getItem('theme') === 'light') document.documentElement.classList.remove('dark');
+else document.documentElement.classList.add('dark');
+
+// Alert helper
 function showAlert(message) {
   const container = document.getElementById('alert-container');
   container.innerHTML = `<div class="alert">${message}</div>`;
   setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
+// Login & Signup
 export function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -47,6 +81,7 @@ export function logout() {
   });
 }
 
+// Show form & load logs
 async function showForm() {
   const user = auth.currentUser;
   document.getElementById('form-section').style.display = 'block';
@@ -55,6 +90,7 @@ async function showForm() {
   loadLogs();
 }
 
+// Submit duty log
 export async function submitLog() {
   const user = auth.currentUser;
   const event = document.getElementById('event').value;
@@ -89,6 +125,7 @@ export async function submitLog() {
   loadLogs();
 }
 
+// Load logs for user
 async function loadLogs() {
   const user = auth.currentUser;
   const q = query(collection(db, 'logs'), where('userId','==',user.uid), orderBy('date','desc'));
@@ -114,4 +151,5 @@ async function loadLogs() {
   document.getElementById('total-hours').textContent = `${totalHours}h ${totalMinutes}m`;
 }
 
+// Auth listener
 onAuthStateChanged(auth, user => { if (user) showForm(); });
