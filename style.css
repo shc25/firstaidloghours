@@ -6,7 +6,7 @@ h1 {
   text-shadow: 1px 1px 4px black;
 }
 
-#log-list li {
+#log-list li, #supervisor-log-list li {
   border-bottom: 1px solid #333;
   padding-bottom: 6px;
   margin-bottom: 6px;
@@ -32,6 +32,15 @@ img {
 
 img:hover {
   transform: scale(1.05);
+}
+
+.alert {
+  background-color: #ff4d4d;
+  padding: 6px 10px;
+  border-radius: 5px;
+  margin-bottom: 6px;
+  text-align: center;
+  font-weight: bold;
 }
 
 /* Animations */
