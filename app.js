@@ -3,26 +3,41 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, on
 import { collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
+function showAlert(message) {
+  const container = document.getElementById('alert-container');
+  container.innerHTML = `<div class="alert">${message}</div>`;
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
+}
+
 export function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+
   signInWithEmailAndPassword(auth, email, password)
-    .then(showForm)
-    .catch(e => alert(e.message));
+    .then(() => showForm())
+    .catch(err => {
+      if (err.code === 'auth/user-not-found') showAlert("Email not found! Please Sign Up instead.");
+      else if (err.code === 'auth/wrong-password') showAlert("Incorrect password!");
+      else showAlert(err.message);
+    });
 }
 
 export function signup() {
   const name = document.getElementById('name').value;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  if (!name) return alert("Enter full name");
+
+  if (!name) return showAlert("Enter your full name to Sign Up!");
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(async (cred) => {
       await addDoc(collection(db, 'users'), { uid: cred.user.uid, name, email, role: "firstAider" });
       showForm();
     })
-    .catch(e => alert(e.message));
+    .catch(err => {
+      if (err.code === 'auth/email-already-in-use') showAlert("Email already registered! Please Login instead.");
+      else showAlert(err.message);
+    });
 }
 
 export function logout() {
@@ -46,7 +61,7 @@ export async function submitLog() {
   const start = document.getElementById('start').value;
   const end = document.getElementById('end').value;
   const imageFile = document.getElementById('image').files[0];
-  if (!imageFile) return alert("Upload an image!");
+  if (!imageFile) return showAlert("Upload an image!");
 
   const storageRef = ref(storage, `images/${user.uid}_${Date.now()}`);
   await uploadBytes(storageRef, imageFile);
@@ -55,8 +70,8 @@ export async function submitLog() {
   const startTime = new Date(`1970-01-01T${start}`);
   const endTime = new Date(`1970-01-01T${end}`);
   const diffMs = endTime - startTime;
-  const hours = Math.floor(diffMs / (1000*60*60));
-  const minutes = Math.floor((diffMs % (1000*60*60)) / (1000*60));
+  let hours = Math.floor(diffMs / (1000*60*60));
+  let minutes = Math.floor((diffMs % (1000*60*60)) / (1000*60));
 
   await addDoc(collection(db, 'logs'), {
     userId: user.uid,
@@ -70,7 +85,7 @@ export async function submitLog() {
     imageURL
   });
 
-  alert("Duty log saved!");
+  showAlert("Duty log saved!");
   loadLogs();
 }
 
@@ -88,9 +103,8 @@ async function loadLogs() {
     totalHours += data.hours;
     totalMinutes += data.minutes;
 
-    // Carry over minutes > 60
     totalHours += Math.floor(totalMinutes/60);
-    totalMinutes = totalMinutes%60;
+    totalMinutes %= 60;
 
     const li = document.createElement('li');
     li.innerHTML = `<strong>${data.event}</strong> - ${data.hours}h ${data.minutes}m <br> <img src="${data.imageURL}" class="w-full mt-1 rounded-md"/>`;
@@ -100,6 +114,4 @@ async function loadLogs() {
   document.getElementById('total-hours').textContent = `${totalHours}h ${totalMinutes}m`;
 }
 
-onAuthStateChanged(auth, user => {
-  if (user) showForm();
-});
+onAuthStateChanged(auth, user => { if (user) showForm(); });
