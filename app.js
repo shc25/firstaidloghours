@@ -1,7 +1,6 @@
-// Firebase SDK imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
 // Firebase config
@@ -38,11 +37,11 @@ else document.documentElement.classList.add('dark');
 // Alert helper
 function showAlert(message) {
   const container = document.getElementById('alert-container');
-  container.innerHTML = `<div class="alert">${message}</div>`;
+  container.innerHTML = `<div class="text-red-400 mb-2">${message}</div>`;
   setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
-// Login & Signup
+// Login / Signup
 export function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -50,7 +49,7 @@ export function login() {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => showForm())
     .catch(err => {
-      if (err.code === 'auth/user-not-found') showAlert("Email not found! Please Sign Up instead.");
+      if (err.code === 'auth/user-not-found') showAlert("Email not found! Please Sign Up.");
       else if (err.code === 'auth/wrong-password') showAlert("Incorrect password!");
       else showAlert(err.message);
     });
@@ -61,7 +60,7 @@ export function signup() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  if (!name) return showAlert("Enter your full name to Sign Up!");
+  if (!name) return showAlert("Enter full name for Sign Up.");
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(async (cred) => {
@@ -69,7 +68,7 @@ export function signup() {
       showForm();
     })
     .catch(err => {
-      if (err.code === 'auth/email-already-in-use') showAlert("Email already registered! Please Login instead.");
+      if (err.code === 'auth/email-already-in-use') showAlert("Email exists! Please Login.");
       else showAlert(err.message);
     });
 }
@@ -81,16 +80,16 @@ export function logout() {
   });
 }
 
-// Show form & load logs
+// Show form
 async function showForm() {
   const user = auth.currentUser;
-  document.getElementById('form-section').style.display = 'block';
   document.getElementById('login-section').style.display = 'none';
+  document.getElementById('form-section').style.display = 'block';
   document.getElementById('user-email').textContent = user.email;
   loadLogs();
 }
 
-// Submit duty log
+// Submit log
 export async function submitLog() {
   const user = auth.currentUser;
   const event = document.getElementById('event').value;
@@ -125,7 +124,7 @@ export async function submitLog() {
   loadLogs();
 }
 
-// Load logs for user
+// Load logs
 async function loadLogs() {
   const user = auth.currentUser;
   const q = query(collection(db, 'logs'), where('userId','==',user.uid), orderBy('date','desc'));
