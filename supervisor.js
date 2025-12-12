@@ -119,7 +119,7 @@ function renderSummary(){
   if (entries.length===0) { summaryEl.innerHTML = '<div class="p-4 bg-white dark:bg-gray-700 rounded">No logs yet</div>'; return; }
   entries.forEach(([label, hrs])=>{
     const card = document.createElement('div');
-    card.className = 'p-4 bg-white dark:bg-gray-700 rounded shadow';
+    card.className = 'p-4 bg-white dark:bg-black-700 rounded shadow';
     card.innerHTML = `<div class="text-sm text-gray-600 dark:text-gray-300">User</div><div class="font-semibold cursor-pointer user-summary" data-label="${escapeHtml(label)}">${escapeHtml(label)}</div><div class="text-sm mt-1">Total: ${minutesToHuman(Number(hrs))}</div>`;
     summaryEl.appendChild(card);
   });
