@@ -62,9 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ---------- UI refs ---------- */
 const loginSection = () => document.getElementById('login-section');
 const formSection = () => document.getElementById('form-section');
+const nameInput = () => document.getElementById('name');
 const emailInput = () => document.getElementById('email');
 const passInput = () => document.getElementById('password');
-const userEmailEl = () => document.getElementById('user-email');
+const userRoleNameEl = () => document.getElementById('user-role-name');
+const userEmailNoteEl = () => document.getElementById('user-email-note');
 const logListEl = () => document.getElementById('log-list');
 const totalHoursEl = () => document.getElementById('total-hours');
 
@@ -84,11 +86,14 @@ async function login() {
 
 async function signup() {
   try {
+    const name = nameInput().value.trim();
+    if (!name) return alert('Please enter your full name for signup.');
     const cred = await createUserWithEmailAndPassword(auth, emailInput().value, passInput().value);
-    // Create user document with uid as doc id
+    // Create user document with uid as doc id and store name + default role
     await setDoc(doc(db, 'users', cred.user.uid), {
       uid: cred.user.uid,
       email: cred.user.email,
+      name,
       role: 'firstAider',
       createdAt: serverTimestamp()
     });
@@ -104,25 +109,29 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // check users collection for role
+  // check users collection for role and name
   try {
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     const role = userDoc.exists() ? (userDoc.data().role || 'firstAider') : 'firstAider';
+    const name = userDoc.exists() ? (userDoc.data().name || '') : '';
     if (role === 'supervisor') {
       // redirect to supervisor dashboard
       window.location.href = 'supervisor.html';
       return;
     }
+
+    // show form to normal user
+    loginSection().classList.add('hidden');
+    formSection().classList.remove('hidden');
+    // show role + name
+    const displayName = name ? `${name} (${user.email})` : user.email;
+    userRoleNameEl().textContent = `First Aider — ${displayName}`;
+    userEmailNoteEl().textContent = `You are logged in as a First Aider.`;
+    // subscribe to realtime logs for this user
+    subscribeUserLogs(user.uid);
   } catch (e) {
     console.warn('role check error', e);
   }
-
-  // show form to normal user
-  loginSection().classList.add('hidden');
-  formSection().classList.remove('hidden');
-  userEmailEl().textContent = user.email;
-  // subscribe to realtime logs for this user
-  subscribeUserLogs(user.uid);
 });
 
 /* ---------- Submit log (image upload, hours calc, serverTimestamp) ---------- */
@@ -154,7 +163,7 @@ async function submitLog() {
     proofUrl = await getDownloadURL(ref);
   }
 
-  // add log document
+  // add log document (includes server timestamp for createdAt)
   await addDoc(collection(db, 'logs'), {
     userId: user.uid,
     email: user.email,
@@ -180,6 +189,7 @@ function subscribeUserLogs(uid) {
   // cleanup previous
   if (unsubscribeLogs) unsubscribeLogs();
 
+  // order by createdAt desc for latest first
   const q = query(collection(db, 'logs'), where('userId', '==', uid), orderBy('createdAt', 'desc'));
   unsubscribeLogs = onSnapshot(q, snapshot => {
     const list = logListEl();
@@ -188,10 +198,12 @@ function subscribeUserLogs(uid) {
     snapshot.forEach(docSnap => {
       const d = docSnap.data();
       total += Number(d.hours || 0);
+      const createdAt = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString() : (d.createdAt || '');
       const li = document.createElement('li');
       li.className = 'fade-slide-in p-2 border rounded';
       li.innerHTML = `<div class="font-semibold">${escapeHtml(d.event)} <span class="text-xs text-gray-500">(${escapeHtml(d.date)})</span></div>
                       <div class="text-xs text-gray-600">${escapeHtml(d.start)} - ${escapeHtml(d.end)} • ${Number(d.hours).toFixed(2)} hrs</div>
+                      <div class="text-xs text-gray-400 mt-1">Logged at: ${escapeHtml(createdAt)}</div>
                       ${d.proofUrl ? `<div class="mt-2"><a href="${d.proofUrl}" target="_blank"><img src="${d.proofUrl}" width="160" class="rounded"/></a></div>` : ''}`;
       list.appendChild(li);
     });
