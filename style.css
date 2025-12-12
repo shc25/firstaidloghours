@@ -2,7 +2,7 @@
 body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
 
 /* small card and list tweaks */
-h1 { text-shadow: 0 6px 30px rgba(79,70,229,0.08); }
+h1 { text-shadow: 0 6px 30px rgba(17,17,17,1); }
 
 #log-list li, #supervisor-log-list li {
   border-bottom: 1px solid rgba(0,0,0,0.06);
