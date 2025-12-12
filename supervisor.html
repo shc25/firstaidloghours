@@ -1,84 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Supervisor Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supervisor Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen p-6 transition-colors duration-500 font-sans">
+<body class="bg-gray-100 min-h-screen p-6">
+<h1 class="text-3xl font-bold mb-4">Supervisor Dashboard</h1>
 
-  <div class="max-w-6xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-extrabold text-indigo-600">Supervisor Dashboard</h1>
-      <div class="flex items-center gap-3">
-        <button id="theme-toggle" class="text-sm text-indigo-300 bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 transition">Toggle Theme</button>
-        <div class="text-sm">Logged in as: <span id="supervisor-email" class="font-semibold ml-2"></span></div>
-        <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">Logout</button>
-      </div>
-    </div>
 
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <!-- changed to filter by name -->
-        <input id="filter-name" placeholder="Filter by first aider name" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-        <input id="filter-date" type="date" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-        <select id="filter-month" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-          <option value="">Filter by month</option>
-        </select>
-        <input id="filter-event" placeholder="Filter by event" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-        <input id="min-hours" type="number" placeholder="Min hours" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-        <input id="max-hours" type="number" placeholder="Max hours" class="px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
-      </div>
-      <div class="flex gap-2 mt-3">
-        <button id="applyFilters" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Apply</button>
-        <button id="resetFilters" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">Reset</button>
-        <button id="exportCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Export CSV</button>
-      </div>
-    </div>
+<input id="filter-name" type="text" placeholder="Search by First Aider Name" class="p-2 border rounded mb-4 w-full" />
 
-    <div id="summary" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"></div>
 
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead class="text-sm text-gray-600 dark:text-gray-300">
-            <tr>
-              <th class="px-3 py-2">User</th>
-              <th class="px-3 py-2">Date</th>
-              <th class="px-3 py-2">Event</th>
-              <th class="px-3 py-2">Hours</th>
-              <th class="px-3 py-2">Photo</th>
-              <th class="px-3 py-2">Logged At</th>
-            </tr>
-          </thead>
-          <tbody id="all-logs" class="text-sm text-gray-800 dark:text-gray-100"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<table class="w-full bg-white shadow rounded">
+<thead class="bg-gray-200">
+<tr>
+<th class="px-3 py-2">First Aider</th>
+<th class="px-3 py-2">Date</th>
+<th class="px-3 py-2">Event</th>
+<th class="px-3 py-2">Hours</th>
+<th class="px-3 py-2">Proof</th>
+<th class="px-3 py-2">Timestamp</th>
+</tr>
+</thead>
+<tbody id="log-table"></tbody>
+</table>
 
-  <!-- user modal -->
-  <div id="userModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-    <div class="absolute inset-0 bg-black/50"></div>
-    <div class="relative z-10 w-full max-w-3xl bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h2 id="modal-user-email" class="text-xl font-semibold"></h2>
-        <div class="flex gap-2">
-          <button id="downloadUserCSV" class="bg-green-600 text-white px-3 py-1 rounded">Export CSV</button>
-          <button id="closeModal" class="bg-gray-300 dark:bg-gray-700 px-3 py-1 rounded">Close</button>
-        </div>
-      </div>
-      <div class="mb-4"><canvas id="userChart" height="120"></canvas></div>
-      <div>
-        <h3 class="font-semibold mb-2">User Logs</h3>
-        <ul id="userLogs" class="space-y-2 max-h-56 overflow-y-auto"></ul>
-      </div>
-    </div>
-  </div>
 
-  <script type="module" src="supervisor.js"></script>
+<script type="module" src="supervisor.js"></script>
 </body>
 </html>
