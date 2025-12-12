@@ -1,141 +1,204 @@
+// app.js (module)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-// Firebase config
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  setDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+
+/* ====== Replace this firebaseConfig with your project's config if different ====== */
 const firebaseConfig = {
-    apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
-    authDomain: "first-aid-log-hours.firebaseapp.com",
-    projectId: "first-aid-log-hours",
-    storageBucket: "first-aid-log-hours.firebasestorage.app",
-    messagingSenderId: "413029874974",
-    appId: "1:413029874974:web:431eb394a78a666442dd0f",
-    measurementId: "G-VD5BEXPTFD"
-  };
+  apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
+  authDomain: "first-aid-log-hours.firebaseapp.com",
+  projectId: "first-aid-log-hours",
+  storageBucket: "first-aid-log-hours.appspot.com",
+  messagingSenderId: "413029874974",
+  appId: "1:413029874974:web:431eb394a78a666442dd0f",
+  measurementId: "G-VD5BEXPTFD"
+};
+/* ================================================================================ */
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Theme toggle
-export function toggleTheme() {
-  const root = document.documentElement;
-  if(root.classList.contains('dark')){
-    root.classList.remove('dark'); localStorage.setItem('theme','light');
-  } else { root.classList.add('dark'); localStorage.setItem('theme','dark'); }
+/* ---------- Theme toggle ---------- */
+const root = document.documentElement;
+function applySavedTheme() {
+  if (localStorage.getItem('theme') === 'light') root.classList.remove('dark');
+  else root.classList.add('dark');
 }
-if(localStorage.getItem('theme')==='light') document.documentElement.classList.remove('dark');
-else document.documentElement.classList.add('dark');
-
-// Alert helper
-function showAlert(message) {
-  const container = document.getElementById('alert-container');
-  container.innerHTML = `<div class="text-red-400 mb-2">${message}</div>`;
-  setTimeout(()=>{ container.innerHTML=''; },4000);
-}
-
-// Login/Signup
-export function login(){
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  signInWithEmailAndPassword(auth,email,password)
-    .then(()=>showForm())
-    .catch(err=>{
-      if(err.code==='auth/user-not-found') showAlert("Email not found! Sign Up instead.");
-      else if(err.code==='auth/wrong-password') showAlert("Incorrect password!");
-      else showAlert(err.message);
-    });
-}
-
-export function signup(){
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  if(!name) return showAlert("Enter full name to Sign Up.");
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(async cred=>{
-      await addDoc(collection(db,'users'),{uid:cred.user.uid,name,email,role:"firstAider"});
-      showForm();
-    })
-    .catch(err=>{
-      if(err.code==='auth/email-already-in-use') showAlert("Email exists! Login instead.");
-      else showAlert(err.message);
-    });
-}
-
-export function logout(){
-  signOut(auth).then(()=>{
-    document.getElementById('form-section').style.display='none';
-    document.getElementById('login-section').style.display='block';
+applySavedTheme();
+document.addEventListener('DOMContentLoaded', () => {
+  const tbtn = document.getElementById('theme-toggle');
+  if (tbtn) tbtn.addEventListener('click', () => {
+    if (root.classList.contains('dark')) { root.classList.remove('dark'); localStorage.setItem('theme','light'); }
+    else { root.classList.add('dark'); localStorage.setItem('theme','dark'); }
   });
+});
+
+/* ---------- UI refs ---------- */
+const loginSection = () => document.getElementById('login-section');
+const formSection = () => document.getElementById('form-section');
+const emailInput = () => document.getElementById('email');
+const passInput = () => document.getElementById('password');
+const userEmailEl = () => document.getElementById('user-email');
+const logListEl = () => document.getElementById('log-list');
+const totalHoursEl = () => document.getElementById('total-hours');
+
+/* ---------- Auth handlers ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginBtn').addEventListener('click', login);
+  document.getElementById('signupBtn').addEventListener('click', signup);
+  document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+  document.getElementById('submitLogBtn').addEventListener('click', submitLog);
+});
+
+async function login() {
+  try {
+    await signInWithEmailAndPassword(auth, emailInput().value, passInput().value);
+  } catch (e) { alert(e.message); }
 }
 
-async function showForm(){
-  const user = auth.currentUser;
-  document.getElementById('login-section').style.display='none';
-  document.getElementById('form-section').style.display='block';
-  document.getElementById('user-email').textContent = user.email;
-  loadLogs();
+async function signup() {
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, emailInput().value, passInput().value);
+    // Create user document with uid as doc id
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      uid: cred.user.uid,
+      email: cred.user.email,
+      role: 'firstAider',
+      createdAt: serverTimestamp()
+    });
+  } catch (e) { alert(e.message); }
 }
 
-export async function submitLog(){
+/* ---------- Auth state & role redirect ---------- */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    // show login
+    formSection().classList.add('hidden');
+    loginSection().classList.remove('hidden');
+    return;
+  }
+
+  // check users collection for role
+  try {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    const role = userDoc.exists() ? (userDoc.data().role || 'firstAider') : 'firstAider';
+    if (role === 'supervisor') {
+      // redirect to supervisor dashboard
+      window.location.href = 'supervisor.html';
+      return;
+    }
+  } catch (e) {
+    console.warn('role check error', e);
+  }
+
+  // show form to normal user
+  loginSection().classList.add('hidden');
+  formSection().classList.remove('hidden');
+  userEmailEl().textContent = user.email;
+  // subscribe to realtime logs for this user
+  subscribeUserLogs(user.uid);
+});
+
+/* ---------- Submit log (image upload, hours calc, serverTimestamp) ---------- */
+async function submitLog() {
   const user = auth.currentUser;
-  const event = document.getElementById('event').value;
+  if (!user) return alert('Not authenticated');
+
+  const date = document.getElementById('date').value;
+  const event = document.getElementById('event').value.trim();
   const start = document.getElementById('start').value;
   const end = document.getElementById('end').value;
-  const imageFile = document.getElementById('image').files[0];
-  if(!imageFile) return showAlert("Upload an image!");
+  const fileInput = document.getElementById('proof');
 
-  const storageRef = ref(storage, `images/${user.uid}_${Date.now()}`);
-  await uploadBytes(storageRef,imageFile);
-  const imageURL = await getDownloadURL(storageRef);
+  if (!date || !event || !start || !end) return alert('Please fill all fields.');
 
+  // compute hours
   const startTime = new Date(`1970-01-01T${start}`);
   const endTime = new Date(`1970-01-01T${end}`);
-  const diffMs = endTime - startTime;
-  let hours = Math.floor(diffMs/(1000*60*60));
-  let minutes = Math.floor((diffMs%(1000*60*60))/(1000*60));
+  let hours = (endTime - startTime) / (1000*60*60);
+  if (hours < 0) hours = 0;
 
-  await addDoc(collection(db,'logs'),{
-    userId:user.uid,
-    email:user.email,
-    date:serverTimestamp(),
+  // upload image if present
+  let proofUrl = "";
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const path = `proofs/${user.uid}/${Date.now()}_${file.name}`;
+    const ref = storageRef(storage, path);
+    await uploadBytes(ref, file);
+    proofUrl = await getDownloadURL(ref);
+  }
+
+  // add log document
+  await addDoc(collection(db, 'logs'), {
+    userId: user.uid,
+    email: user.email,
+    date,
     event,
     start,
     end,
     hours,
-    minutes,
-    imageURL
+    proofUrl,
+    createdAt: serverTimestamp()
   });
 
-  showAlert("Duty log saved!");
-  loadLogs();
+  // clear inputs (preview already updated via subscription)
+  document.getElementById('event').value = '';
+  document.getElementById('start').value = '';
+  document.getElementById('end').value = '';
+  if (fileInput) fileInput.value = '';
 }
 
-async function loadLogs(){
-  const user = auth.currentUser;
-  const q = query(collection(db,'logs'),where('userId','==',user.uid),orderBy('date','desc'));
-  const snapshot = await getDocs(q);
-  const list = document.getElementById('log-list');
-  list.innerHTML='';
-  let totalHours=0,totalMinutes=0;
+/* ---------- Subscribe to user's logs in real-time & display ---------- */
+let unsubscribeLogs = null;
+function subscribeUserLogs(uid) {
+  // cleanup previous
+  if (unsubscribeLogs) unsubscribeLogs();
 
-  snapshot.forEach(doc=>{
-    const data=doc.data();
-    totalHours+=data.hours;
-    totalMinutes+=data.minutes;
-    totalHours+=Math.floor(totalMinutes/60);
-    totalMinutes%=60;
-
-    const li = document.createElement('li');
-    li.innerHTML=`<strong>${data.event}</strong> - ${data.hours}h ${data.minutes}m<br><img src="${data.imageURL}" class="w-full mt-1 rounded-md"/>`;
-    list.appendChild(li);
+  const q = query(collection(db, 'logs'), where('userId', '==', uid), orderBy('createdAt', 'desc'));
+  unsubscribeLogs = onSnapshot(q, snapshot => {
+    const list = logListEl();
+    list.innerHTML = '';
+    let total = 0;
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      total += Number(d.hours || 0);
+      const li = document.createElement('li');
+      li.className = 'fade-slide-in p-2 border rounded';
+      li.innerHTML = `<div class="font-semibold">${escapeHtml(d.event)} <span class="text-xs text-gray-500">(${escapeHtml(d.date)})</span></div>
+                      <div class="text-xs text-gray-600">${escapeHtml(d.start)} - ${escapeHtml(d.end)} • ${Number(d.hours).toFixed(2)} hrs</div>
+                      ${d.proofUrl ? `<div class="mt-2"><a href="${d.proofUrl}" target="_blank"><img src="${d.proofUrl}" width="160" class="rounded"/></a></div>` : ''}`;
+      list.appendChild(li);
+    });
+    totalHoursEl().textContent = total.toFixed(2);
   });
-  document.getElementById('total-hours').textContent = `${totalHours}h ${totalMinutes}m`;
 }
 
-onAuthStateChanged(auth,user=>{if(user) showForm();});
-
+function escapeHtml(s = '') {
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
