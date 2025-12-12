@@ -2,19 +2,20 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
-
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
 // Firebase config
 const firebaseConfig = {
- apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
- authDomain: "first-aid-log-hours.firebaseapp.com",
- projectId: "first-aid-log-hours",
- storageBucket: "first-aid-log-hours.appspot.com",
- messagingSenderId: "413029874974",
- appId: "1:413029874974:web:431eb394a78a666442dd0f",
- measurementId: "G-VD5BEXPTFD"
-};
+    apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
+    authDomain: "first-aid-log-hours.firebaseapp.com",
+    projectId: "first-aid-log-hours",
+    storageBucket: "first-aid-log-hours.firebasestorage.app",
+    messagingSenderId: "413029874974",
+    appId: "1:413029874974:web:431eb394a78a666442dd0f",
+    measurementId: "G-VD5BEXPTFD"
+  };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
