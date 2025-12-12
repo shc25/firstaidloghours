@@ -1,22 +1,14 @@
+/* Minimal styling – most handled by Tailwind */
 body {
-  font-family: 'Segoe UI', sans-serif;
+font-family: Arial, sans-serif;
 }
 
-h1 {
-  text-shadow: 1px 1px 4px black;
+
+input {
+outline: none;
 }
 
-#log-list li, #supervisor-log-list li {
-  border-bottom: 1px solid #333;
-  padding-bottom: 4px;
-  transition: transform 0.2s;
-}
 
-#log-list li:hover, #supervisor-log-list li:hover {
-  transform: scale(1.02);
-}
-
-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.5);
+table img {
+border-radius: 6px;
 }
