@@ -20,7 +20,8 @@
 
     <!-- LOGIN -->
     <div id="login-section" class="space-y-3">
-      <input id= "name" type= "name" placeholder= "Name" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
+      <!-- Added name entry here for signup -->
+      <input id="name" type="text" placeholder="Full name (for signup)" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
       <input id="email" type="email" placeholder="Email" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
       <input id="password" type="password" placeholder="Password" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
       <div class="flex gap-2">
@@ -32,7 +33,9 @@
 
     <!-- FORM (hidden initially) -->
     <div id="form-section" class="hidden mt-4 space-y-4">
-      <div class="text-sm text-gray-600">Logged in as: <span id="user-email" class="font-semibold text-indigo-500"></span></div>
+      <!-- Show role and name instead of just email -->
+      <div class="text-sm text-gray-600">Logged in as: <span id="user-role-name" class="font-semibold text-indigo-500"></span></div>
+      <div class="text-xs text-gray-500" id="user-email-note"></div>
 
       <input id="date" type="date" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
       <input id="event" type="text" placeholder="Event name" class="w-full px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
