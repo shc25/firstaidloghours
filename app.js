@@ -5,13 +5,13 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
-  authDomain: "first-aid-log-hours.firebaseapp.com",
-  projectId: "first-aid-log-hours",
-  storageBucket: "first-aid-log-hours.firebasestorage.app",
-  messagingSenderId: "413029874974",
-  appId: "1:413029874974:web:431eb394a78a666442dd0f",
-  measurementId: "G-VD5BEXPTFD"
+ apiKey: "AIzaSyBWtaWaFLcnS6NiUFLJfWZ0IuojIIw0fNI",
+    authDomain: "first-aid-log-hours.firebaseapp.com",
+    projectId: "first-aid-log-hours",
+    storageBucket: "first-aid-log-hours.firebasestorage.app",
+    messagingSenderId: "413029874974",
+    appId: "1:413029874974:web:431eb394a78a666442dd0f",
+    measurementId: "G-VD5BEXPTFD"
 };
 
 // Initialize Firebase
