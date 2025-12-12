@@ -8,45 +8,15 @@ h1 {
 
 #log-list li, #supervisor-log-list li {
   border-bottom: 1px solid #333;
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeInUp 0.4s forwards;
+  padding-bottom: 4px;
+  transition: transform 0.2s;
 }
 
-button {
-  transition: all 0.3s ease;
+#log-list li:hover, #supervisor-log-list li:hover {
+  transform: scale(1.02);
 }
 
-button:hover {
-  transform: scale(1.05);
-}
-
-img {
-  max-height: 150px;
-  object-fit: cover;
-  border-radius: 6px;
-  transition: transform 0.3s ease;
-}
-
-img:hover {
-  transform: scale(1.05);
-}
-
-.alert {
-  background-color: #ff4d4d;
-  padding: 6px 10px;
-  border-radius: 5px;
-  margin-bottom: 6px;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.5);
 }
