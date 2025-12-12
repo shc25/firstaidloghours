@@ -1,14 +1,27 @@
-/* Minimal styling – most handled by Tailwind */
-body {
-font-family: Arial, sans-serif;
+/* Visual theme: indigo + teal glass */
+body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+
+/* small card and list tweaks */
+h1 { text-shadow: 0 6px 30px rgba(79,70,229,0.08); }
+
+#log-list li, #supervisor-log-list li {
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: 6px;
+  transition: transform 0.12s ease;
 }
 
-
-input {
-outline: none;
+#log-list li:hover, #supervisor-log-list li:hover {
+  transform: translateY(-2px);
 }
 
+input:focus, select:focus, button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.10);
+}
 
-table img {
-border-radius: 6px;
+a img { border-radius: 6px; max-width: 100%; height: auto; display: block; }
+
+/* small responsive */
+@media (max-width: 480px) {
+  .backdrop-blur-xl { padding: 1rem; }
 }
