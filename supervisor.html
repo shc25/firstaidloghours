@@ -6,7 +6,6 @@
 <title>Supervisor Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script type="module" src="firebase-init.js"></script>
 <script type="module" src="supervisor.js"></script>
 </head>
 <body class="bg-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
@@ -18,7 +17,9 @@
     <button onclick="logout()" class="ml-2 text-sm bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition">Logout</button>
   </div>
 
-  <h1 class="text-3xl font-extrabold text-center mb-6 text-indigo-300 drop-shadow-lg animate-pulse">Supervisor Dashboard</h1>
+  <h1 class="text-3xl font-extrabold text-center mb-6 text-indigo-300 drop-shadow-lg animate-pulse">
+    Supervisor Dashboard
+  </h1>
 
   <div id="alert-container"></div>
 
@@ -27,5 +28,6 @@
   <ul id="supervisor-log-list" class="text-sm max-h-96 overflow-y-auto space-y-2 px-1 text-gray-200"></ul>
 
 </div>
+
 </body>
 </html>
